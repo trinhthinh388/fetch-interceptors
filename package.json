@@ -1,0 +1,15 @@
+{
+  "name": "fetch-interceptors",
+  "version": "1.0.0",
+  "description": "The interceptors plugin for window fetch function.",
+  "main": "index.js",
+  "repository": "git@github.com:trinhthinh388/fetch-interceptors.git",
+  "author": "thinh.trinh <thinh.duc.trinh@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "jest": "^28.1.0",
+    "ts-jest": "^28.0.2",
+    "ts-node": "^10.7.0",
+    "typescript": "^4.6.4"
+  }
+}
