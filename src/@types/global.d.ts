@@ -8,6 +8,9 @@ declare global {
   }
 
   interface Response {
-    reqInfo: RequestInfo;
+    request: {
+      input: RequestInfo;
+      options?: RequestInit;
+    };
   }
 }
