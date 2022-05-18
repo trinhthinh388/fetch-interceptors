@@ -1,15 +1,42 @@
 {
-  "name": "fetch-interceptors",
+  "name": "@thinhtrinh/fetch-interceptors",
   "version": "1.0.0",
   "description": "The interceptors plugin for window fetch function.",
-  "main": "index.js",
-  "repository": "git@github.com:trinhthinh388/fetch-interceptors.git",
+  "main": "cjs/index.js",
+  "browser": "cjs/index.js",
+  "types": "index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/trinhthinh388/fetch-interceptors.git"
+  },
   "author": "thinh.trinh <thinh.duc.trinh@gmail.com>",
   "license": "MIT",
+  "files": [
+    "build/*"
+  ],
   "devDependencies": {
+    "@rollup/plugin-node-resolve": "^13.3.0",
+    "@types/jest": "^27.5.1",
+    "babel-jest": "^28.1.0",
     "jest": "^28.1.0",
+    "jest-environment-jsdom": "^28.1.0",
+    "jest-fetch-mock": "^3.0.3",
+    "rimraf": "^3.0.2",
+    "rollup": "^2.73.0",
+    "rollup-plugin-dts": "^4.2.1",
+    "rollup-plugin-peer-deps-external": "^2.2.4",
+    "rollup-plugin-typescript2": "^0.31.2",
     "ts-jest": "^28.0.2",
     "ts-node": "^10.7.0",
     "typescript": "^4.6.4"
-  }
+  },
+  "scripts": {
+    "test": "jest",
+    "typecheck": "tsc",
+    "build": "rimraf build && rollup -c"
+  },
+  "bugs": {
+    "url": "https://github.com/trinhthinh388/fetch-interceptors/issues"
+  },
+  "homepage": "https://github.com/trinhthinh388/fetch-interceptors#readme"
 }

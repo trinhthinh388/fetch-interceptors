@@ -1,3 +1,5 @@
+import './global';
+
 export type RequestSuccessInterceptor = (config: RequestInfo) => RequestInfo;
 
 export type ResponseSuccessInterceptor = (resp: Response) => Response;

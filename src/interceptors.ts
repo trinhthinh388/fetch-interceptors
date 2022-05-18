@@ -42,8 +42,9 @@ async function fetch(
   let finalInput = input;
   // Run pipeline before send request
   interceptors.request.forEach((interceptor) => {
-    finalInput = interceptor.onSuccess(input);
+    finalInput = interceptor.onSuccess(finalInput);
   });
+
   const res = await originFetch(finalInput, init);
 
   let finalRes = res.clone();
@@ -61,21 +62,21 @@ async function fetch(
   return Promise.resolve(finalRes);
 }
 
-export function withInterceptors() {
+export function withInterceptors(_self: Window & typeof globalThis) {
   Object.defineProperties(fetch, {
     interceptors: {
       value: {
-        response: {
+        request: {
           use: addToReqPipeline,
         },
-        request: {
+        response: {
           use: addToResPipeline,
         },
       },
     },
   });
 
-  Object.defineProperty(window, 'fetch', {
+  Object.defineProperty(_self, 'fetch', {
     value: fetch,
   });
 }
