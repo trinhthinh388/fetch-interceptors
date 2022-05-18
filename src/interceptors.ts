@@ -54,6 +54,9 @@ async function fetch(
       options: init,
     },
   });
+  Object.defineProperty(init, 'extraData', {
+    value: undefined,
+  });
   if (res.ok) {
     // Run pipeline for success request.
     interceptors.response.forEach((interceptor) => {
