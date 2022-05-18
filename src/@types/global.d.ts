@@ -13,4 +13,8 @@ declare global {
       options?: RequestInit;
     };
   }
+
+  interface RequestInit {
+    extraData?: any;
+  }
 }
