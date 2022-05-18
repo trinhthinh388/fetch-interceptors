@@ -2,18 +2,15 @@
   "name": "@thinhtrinh/fetch-interceptors",
   "version": "1.0.2",
   "description": "The interceptors plugin for window fetch function.",
-  "main": "cjs/index.js",
-  "browser": "cjs/index.js",
-  "types": "index.d.ts",
+  "main": "build/cjs/index.js",
+  "browser": "build/cjs/index.js",
+  "types": "build/index.d.ts",
   "repository": {
     "type": "git",
     "url": "git+ssh://git@github.com/trinhthinh388/fetch-interceptors.git"
   },
   "author": "thinh.trinh <thinh.duc.trinh@gmail.com>",
   "license": "MIT",
-  "files": [
-    "build/*"
-  ],
   "devDependencies": {
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@types/jest": "^27.5.1",

@@ -47,7 +47,10 @@ async function fetch(
 
   const res = await originFetch(finalInput, init);
 
-  let finalRes = res.clone();
+  let finalRes = {
+    ...res.clone(),
+    reqInfo: finalInput,
+  };
   if (res.ok) {
     // Run pipeline for success request.
     interceptors.response.forEach((interceptor) => {

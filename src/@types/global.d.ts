@@ -6,6 +6,8 @@ declare global {
       interceptors: Interceptors;
     };
   }
-}
 
-export {};
+  interface Response {
+    reqInfo: RequestInfo;
+  }
+}
