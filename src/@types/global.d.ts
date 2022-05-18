@@ -15,6 +15,6 @@ declare global {
   }
 
   interface RequestInit {
-    extraData?: any;
+    extraData?: Record<string, any>;
   }
 }
