@@ -276,9 +276,9 @@ describe('interceptors', () => {
       return resp;
     });
 
-    fetch('https://jsonplaceholder.typicode.com/todos/1').then(() => {
+    fetch('/foo').then(() => {
       setTimeout(() => {
-        expect(response).toBe('OK - modified with interceptor');
+        expect(response).toBe('Not Found - modified with interceptor');
         done();
       }, 1000);
     });

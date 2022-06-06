@@ -37,6 +37,8 @@ module.exports = function (config) {
 
     reporters: ['progress'],
 
-    browsers: ['Firefox'],
+    browsers: ['ChromeHeadless'],
+
+    singleRun: true,
   });
 };
