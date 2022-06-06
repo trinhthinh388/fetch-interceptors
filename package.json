@@ -1,5 +1,5 @@
 {
-  "name": "@thinhtrinh/fetch-interceptors",
+  "name": "axios-fetch-interceptors",
   "version": "1.0.7",
   "description": "The interceptors plugin for window fetch function.",
   "main": "build/cjs/index.js",

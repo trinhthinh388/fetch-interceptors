@@ -19,7 +19,7 @@ jobs:
           openssl aes-256-cbc 
           -K $encrypted_XXXXXXXXXX_key
           -iv $encrypted_XXXXXXXXXX_iv
-          -in .travis/github_deploy_key.enc 
+          -in github_deploy_key.enc 
           -out github_deploy_key 
           -d
         - chmod 600 github_deploy_key
@@ -28,7 +28,7 @@ jobs:
         # Patch for NPM
         - npm version patch -m "Version %s"
         # Set remote to SSH instead of HTTPS
-        - git remote set-url origin git@github.com:<USERNAME/<PROJECT>.git
+        - git remote set-url origin git@github.com:trinhthinh388/fetch-interceptors.git
         # Push new tag to GitHub, triggering a new build
         - git push origin HEAD:master --follow-tags
       on:
