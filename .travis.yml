@@ -32,7 +32,7 @@ jobs:
         # Push new tag to GitHub, triggering a new build
         - git push origin HEAD:master --follow-tags
       on:
-        tags: true
+        tags: false
 
     - stage: Release
       if: tag IS present AND commit_message =~ /^Version /
