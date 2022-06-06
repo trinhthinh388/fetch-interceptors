@@ -1,6 +1,6 @@
 {
   "name": "axios-fetch-interceptors",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "The interceptors plugin for window fetch function.",
   "main": "build/cjs/index.js",
   "browser": "build/cjs/index.js",
