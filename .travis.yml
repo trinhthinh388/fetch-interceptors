@@ -28,7 +28,7 @@ jobs:
         # Patch for NPM
         - npm version patch -m "Version %s"
         # Set remote to SSH instead of HTTPS
-        - git remote set-url origin git@github.com:<USERNAME/<PROJECT>.git
+        - git remote set-url origin git@github.com:trinhthinh388/fetch-interceptors.git
         # Push new tag to GitHub, triggering a new build
         - git push origin HEAD:master --follow-tags
       on:
