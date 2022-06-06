@@ -7,7 +7,7 @@ before_install:
   - sudo apt-get  -y install
 
 before_deploy:
-  - np run build
+  - npm run build
 
 jobs:
   include:
