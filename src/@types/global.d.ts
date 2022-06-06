@@ -1,17 +1,13 @@
 import { Interceptors } from './index';
 
 declare global {
-  interface Window {
-    fetch: {
-      interceptors: Interceptors;
-    };
-  }
+  function fetch(
+    input: RequestInfo,
+    init?: RequestInit | undefined
+  ): Promise<Response>;
 
-  interface Response {
-    request: {
-      input: RequestInfo;
-      options?: RequestInit;
-    };
+  namespace fetch {
+    export var interceptors: Interceptors;
   }
 
   interface RequestInit {

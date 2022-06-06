@@ -1,88 +1,197 @@
 import {
-  RequestSuccessInterceptor,
-  ResponseSuccessInterceptor,
-  ResponseFailInterceptor,
+  RequestHandler,
+  HandlerOptions,
+  Handlers,
+  RequestConfig,
+  ErrorHandler,
+  ResponseHandler,
 } from '@types';
 
-const originFetch = window.fetch;
+type RequestDispatcher = (config: RequestConfig) => Promise<Response>;
 
-const interceptors: {
-  request: Array<{
-    onSuccess: RequestSuccessInterceptor;
-  }>;
-  response: Array<{
-    onSuccess: ResponseSuccessInterceptor;
-    onError: ResponseFailInterceptor;
-  }>;
+const handlers: {
+  request: Array<Handlers<RequestHandler>>;
+  response: Array<Handlers<ResponseHandler>>;
 } = {
-  response: [],
   request: [],
+  response: [],
 };
 
-function addToReqPipeline(onSuccess: RequestSuccessInterceptor) {
-  interceptors.request.push({
-    onSuccess,
-  });
-}
-
-function addToResPipeline(
-  onSuccess: ResponseSuccessInterceptor,
-  onError: ResponseFailInterceptor
-) {
-  interceptors.response.push({
-    onSuccess,
-    onError,
-  });
-}
+const originalFetch = window.fetch;
 
 async function fetch(
-  input: RequestInfo,
-  init?: RequestInit
+  prevInput: RequestInfo,
+  prevInit?: RequestInit
 ): Promise<Response> {
-  let finalInput = input;
-  // Run pipeline before send request
-  interceptors.request.forEach((interceptor) => {
-    finalInput = interceptor.onSuccess(finalInput);
+  let finalInput = prevInput;
+  let finalInit = prevInit;
+
+  /**
+   * INTERCEPTORS
+   */
+  let hasSynchronousInterceptorOnly = true;
+  const requestInterceptorChain: Array<
+    RequestHandler | ErrorHandler | undefined
+  > = [];
+  const responseInterceptorChain: Array<
+    ResponseHandler | ErrorHandler | undefined
+  > = [];
+
+  handlers.request.forEach(({ handler, options }) => {
+    hasSynchronousInterceptorOnly =
+      hasSynchronousInterceptorOnly && !!options.synchronous;
+
+    const { onFulfilled, onRejected } = handler;
+    requestInterceptorChain.unshift(onFulfilled, onRejected);
+  });
+  handlers.response.forEach(({ handler }) => {
+    const { onFulfilled, onRejected } = handler;
+    responseInterceptorChain.push(onFulfilled, onRejected);
   });
 
-  const res = await originFetch(finalInput, init);
+  if (!hasSynchronousInterceptorOnly) {
+    const requestDispatcher: RequestDispatcher = ({ input, init }) =>
+      originalFetch(input, init);
+    let chain: Array<
+      | RequestHandler
+      | ResponseHandler
+      | RequestDispatcher
+      | ErrorHandler
+      | undefined
+    > = [requestDispatcher, undefined];
 
-  let finalRes = res.clone();
-  Object.defineProperty(finalRes, 'request', {
-    value: {
+    chain.unshift(...requestInterceptorChain);
+
+    chain = chain.concat(responseInterceptorChain);
+
+    let promise = Promise.resolve<RequestConfig>({
       input: finalInput,
-      options: init,
-    },
-  });
-  if (res.ok) {
-    // Run pipeline for success request.
-    interceptors.response.forEach((interceptor) => {
-      finalRes = interceptor.onSuccess(finalRes);
+      init: finalInit,
     });
-  } else {
-    // Run pipeline for failed request.
-    for (let i = 0; i < interceptors.response.length; i++) {
-      finalRes = await interceptors.response[i].onError(finalRes);
+    while (chain.length) {
+      const onFulfilled = chain.shift() as RequestHandler;
+      const onRejected = chain.shift();
+      // @ts-expect-error onRejected will not be called anyway.
+      promise = promise.then(onFulfilled, onRejected);
+    }
+    return promise as unknown as ReturnType<RequestDispatcher>;
+  }
+
+  while (requestInterceptorChain.length) {
+    const onFulfilled = requestInterceptorChain.shift() as RequestHandler;
+    const onRejected = requestInterceptorChain.shift() as ErrorHandler;
+    try {
+      if (onFulfilled) {
+        const { input, init } = await onFulfilled({
+          input: finalInput,
+          init: finalInit,
+        });
+        finalInput = input;
+        finalInit = init;
+      }
+    } catch (error) {
+      if (onRejected) {
+        onRejected(error as Error, {
+          input: finalInput,
+          init: finalInit,
+        });
+        break;
+      }
     }
   }
-  return Promise.resolve(finalRes);
+  /**
+   * END INTERCEPTORS
+   */
+
+  const response = await originalFetch(finalInput, finalInit);
+  let newResponse: Response = response;
+  for (; responseInterceptorChain.length; ) {
+    const onFulfilled = responseInterceptorChain.shift() as ResponseHandler;
+    const onRejected = responseInterceptorChain.shift() as ErrorHandler;
+    try {
+      if (onFulfilled) {
+        newResponse = await onFulfilled(newResponse);
+      }
+    } catch (error) {
+      if (onRejected) {
+        onRejected(error as Error, {
+          input: finalInput,
+          init: finalInit,
+        });
+        continue;
+      }
+      break;
+    }
+  }
+  return newResponse;
 }
 
-export function withInterceptors(_self: Window & typeof globalThis) {
-  Object.defineProperties(fetch, {
-    interceptors: {
-      value: {
-        request: {
-          use: addToReqPipeline,
+function clear(clearRequest: boolean = true) {
+  return () => {
+    if (clearRequest) {
+      handlers.request = [];
+      return;
+    }
+    handlers.response = [];
+  };
+}
+
+function addHandler(toRequest: boolean = true) {
+  return function (
+    onFulfilled: RequestHandler | ResponseHandler,
+    onRejected: ErrorHandler,
+    options: HandlerOptions = { synchronous: false }
+  ) {
+    if (toRequest) {
+      handlers.request.push({
+        handler: {
+          onFulfilled: onFulfilled as RequestHandler,
+          onRejected,
         },
-        response: {
-          use: addToResPipeline,
+        options,
+      });
+    } else {
+      handlers.response.push({
+        handler: {
+          onFulfilled: onFulfilled as ResponseHandler,
+          onRejected,
         },
-      },
+        options: undefined,
+      });
+    }
+  };
+}
+
+Object.defineProperty(window, 'fetch', {
+  value: fetch,
+});
+Object.defineProperty(window.fetch, 'interceptors', {
+  value: {
+    request: {
+      handlers: handlers.request,
+      use: addHandler(true),
+      clear: clear(true),
     },
-  });
-
-  Object.defineProperty(_self, 'fetch', {
-    value: fetch,
-  });
-}
+    response: {
+      handlers: handlers.response,
+      use: addHandler(false),
+      clear: clear(false),
+    },
+  },
+});
+Object.defineProperty(window.fetch.interceptors.request, 'handlers', {
+  get() {
+    return handlers.request;
+  },
+  set(newValue) {
+    handlers.request = newValue;
+  },
+});
+Object.defineProperty(window.fetch.interceptors.response, 'handlers', {
+  get() {
+    return handlers.response;
+  },
+  set(newValue) {
+    handlers.response = newValue;
+  },
+});
