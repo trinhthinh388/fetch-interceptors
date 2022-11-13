@@ -8,12 +8,12 @@ const bundle = [
     input: 'src/index.ts',
     output: [
       {
-        file: 'dist/cjs/index.js',
+        file: 'build/cjs/index.js',
         format: 'cjs',
         sourcemap: true,
       },
       {
-        file: 'dist/esm/index.js',
+        file: 'build/esm/index.js',
         format: 'esm',
         sourcemap: true,
       },
