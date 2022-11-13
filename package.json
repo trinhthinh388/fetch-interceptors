@@ -46,5 +46,12 @@
   "bugs": {
     "url": "https://github.com/trinhthinh388/fetch-interceptors/issues"
   },
-  "homepage": "https://github.com/trinhthinh388/fetch-interceptors#readme"
+  "homepage": "https://github.com/trinhthinh388/fetch-interceptors#readme",
+  "keywords": [
+    "axios",
+    "fetch",
+    "interceptors",
+    "axios-alike",
+    "typescript"
+  ]
 }
