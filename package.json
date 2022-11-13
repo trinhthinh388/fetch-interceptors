@@ -9,6 +9,12 @@
     "type": "git",
     "url": "git+ssh://git@github.com/trinhthinh388/fetch-interceptors.git"
   },
+  "files": [
+    "package.json",
+    "yarn.lock",
+    "README.md",
+    "build/*"
+  ],
   "author": "thinh.trinh <thinh.duc.trinh@gmail.com>",
   "license": "MIT",
   "devDependencies": {
